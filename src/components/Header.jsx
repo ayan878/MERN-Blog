@@ -4,7 +4,7 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { FaMoon } from "react-icons/fa";
 
 function Header() {
-  const path = useLocation();
+  const path = useLocation().pathname;
   return (
     <Navbar className="border-b-2">
       <Link
@@ -44,7 +44,7 @@ function Header() {
           <Link to="/about">About</Link>
         </Navbar.Link>
         <Navbar.Link active={path === "/projects"} as={"div"}>
-          <Link to="/project">Projects</Link>
+          <Link to="/projects">Projects</Link>
         </Navbar.Link>
       </Navbar.Collapse>
     </Navbar>
