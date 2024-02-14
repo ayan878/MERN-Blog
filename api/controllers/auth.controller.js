@@ -1,8 +1,7 @@
 import bcryptjs from "bcryptjs";
 import User from "../models/user.model.js";
 
-const signup = async (req, res) => {
-  console.log(req.body);
+const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
 
   try {
@@ -27,7 +26,8 @@ const signup = async (req, res) => {
     return res.json({ message: "Signup successfully" });
   } catch (error) {
     console.error("Error saving user:", error);
-    return res.status(500).json({ message: error.message });
+    // Pass the error to the error handling middleware
+    next(error);
   }
 };
 
