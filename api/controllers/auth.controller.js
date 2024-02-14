@@ -1,6 +1,6 @@
-// // import { error } from "console";
-
+import bcryptjs from "bcryptjs";
 import User from "../models/user.model.js";
+
 const signup = async (req, res) => {
   console.log(req.body);
   const { username, email, password } = req.body;
@@ -17,8 +17,13 @@ const signup = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const newUser = new User({ username, email, password });
+    // Hash the password
+    const hashedPassword = bcryptjs.hashSync(password, 10);
+
+    // Create a new user with the hashed password
+    const newUser = new User({ username, email, password: hashedPassword });
     await newUser.save();
+
     return res.json({ message: "Signup successfully" });
   } catch (error) {
     console.error("Error saving user:", error);
