@@ -1,47 +1,52 @@
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../redux/user/userSlice";
 import { BsGoogle } from "react-icons/bs";
 
 function SignIn() {
   const [formData, setFormData] = useState({});
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, error: errorMessage } = useSelector((state) => {
+    state.user;
+  });
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
 
- const handleSubmit = async (e) => {
-   e.preventDefault();
-   if (!formData.email || !formData.password) {
-     return setErrorMessage("Please fill out all fields.");
-   }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.email || !formData.password) {
+      return dispatch(signInFailure("Please fill out all fields."));
+    }
 
-   try {
-     setLoading(true);
-     setErrorMessage(null);
-     const res = await fetch("/api/auth/signin", {
-       method: "POST",
-       headers: { "Content-Type": "application/json" },
-       body: JSON.stringify(formData),
-     });
+    try {
+      dispatch(signInStart());
+      const res = await fetch("/api/auth/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-     const data = await res.json();
-     setLoading(false);
+      const data = await res.json();
+      dispatch(signInFailure(data.message));
 
-     if (!res.ok) {
-       return setErrorMessage(data.message);
-     }
+      if (!res.ok) {
+        dispatch(signInSuccess(data));
+      }
 
-     navigate("/"); // Redirect to the home page after successful sign-in
-   } catch (error) {
-     setErrorMessage(error.message);
-     setLoading(false);
-   }
- };
-
+      navigate("/"); // Redirect to the home page after successful sign-in
+    } catch (error) {
+      dispatch(signInFailure(error.message));
+    }
+  };
 
   return (
     <div className="min-h-screen mt-20">
@@ -93,10 +98,9 @@ function SignIn() {
                 "Sign In"
               )}
             </Button>
-            <Button gradientDuoTone="purpleToPink" outline >
+            <Button gradientDuoTone="purpleToPink" outline>
               <BsGoogle /> Continue with Google
             </Button>
-
           </form>
           <div className="flex gap-2 text-sm mt-5">
             <span>Don't have an account?</span>
