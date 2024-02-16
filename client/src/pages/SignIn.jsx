@@ -11,9 +11,7 @@ import { BsGoogle } from "react-icons/bs";
 
 function SignIn() {
   const [formData, setFormData] = useState({});
-  const { loading, error: errorMessage } = useSelector((state) => {
-    state.user;
-  });
+  const { loading, error: errorMessage } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -36,13 +34,13 @@ function SignIn() {
       });
 
       const data = await res.json();
-      dispatch(signInFailure(data.message));
 
-      if (!res.ok) {
+      if (res.ok) {
         dispatch(signInSuccess(data));
+        navigate("/"); // Redirect to the home page after successful sign-in
+      } else {
+        dispatch(signInFailure(data.message));
       }
-
-      navigate("/"); // Redirect to the home page after successful sign-in
     } catch (error) {
       dispatch(signInFailure(error.message));
     }
